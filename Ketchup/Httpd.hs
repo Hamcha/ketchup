@@ -7,6 +7,7 @@ module Ketchup.Httpd
 , sendReply
 , listenHTTP
 , sendBadRequest
+, sendNotFound
 ) where
 
 import           Control.Concurrent (forkIO)
@@ -49,7 +50,11 @@ statusMsg stat
 
 sendBadRequest :: Socket -> IO ()
 sendBadRequest client = do
-    sendReply client 400 [("Content-Type",["text/plain"])] "Bad Request!\n"
+    sendReply client 400 [("Content-Type",["text/plain"])] "400 Bad Request!\n"
+
+sendNotFound :: Socket -> IO ()
+sendNotFound client = do
+    sendReply client 404 [("Content-Type",["text/plain"])] "404 Not Found!\n"
 
 -- Sends HTTP reply
 sendReply :: Socket -> Int -> [(B.ByteString, [B.ByteString])] -> B.ByteString -> IO ()

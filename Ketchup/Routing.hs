@@ -11,7 +11,7 @@ import           Network
 
 route :: [(C.ByteString, (Socket -> HTTPRequest -> (M.Map C.ByteString C.ByteString) -> IO ()))]
      -> (Socket -> HTTPRequest -> IO ())
-route []         handle request = sendBadRequest handle
+route []         handle request = sendNotFound handle
 route (r:routes) handle request
     | match (uri request) (fst r) = (snd r) handle request $ params (uri request) (fst r)
     | otherwise                   = route routes handle request
