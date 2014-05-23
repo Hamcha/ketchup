@@ -62,7 +62,7 @@ sendReply client status headers body = do
     sendAll client reply
     where
     reply = B.concat ["HTTP/1.1 ", statusMsg status,"\r\n\
-        \Server: OlegDB/fresh_cuts_n_jams\r\n\
+        \Server: Ketchup\r\n\
         \Content-Length: ", C.pack $ show $ C.length body, "\r\n\
         \Connection: close\r\n",heads,"\r\n",body]
     -- Turn ("a", ["b", "c"]) headers into "a: b,c"
