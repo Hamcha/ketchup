@@ -7,12 +7,16 @@ module Ketchup.Routing
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Map as M
 import           Ketchup.Httpd
+import           Network
 
+route :: [(C.ByteString, (Socket -> HTTPRequest -> (M.Map C.ByteString C.ByteString) -> IO ()))]
+     -> (Socket -> HTTPRequest -> IO ())
 route []         handle request = sendBadRequest handle
 route (r:routes) handle request
     | match (uri request) (fst r) = (snd r) handle request $ params (uri request) (fst r)
     | otherwise                   = route routes handle request
 
+match :: C.ByteString -> C.ByteString -> Bool
 match url template =
     and $ zipWith compare urlparts tmpparts
     where
@@ -24,6 +28,7 @@ match url template =
     urlparts = C.split '/' url
     tmpparts = C.split '/' template
 
+params :: C.ByteString -> C.ByteString -> M.Map C.ByteString C.ByteString
 params url template =
     M.fromList $ filter (not . C.null . fst) $ zipWith retrieve urlparts tmpparts
     where
