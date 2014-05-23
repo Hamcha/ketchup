@@ -4,4 +4,5 @@ example:
 	ghc example.hs
 
 clean:
-	rm *.o */*.o *.hi */*.hi
+	rm -rf ./example
+	rm -rf *.o */*.o *.hi */*.hi
