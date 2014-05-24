@@ -18,11 +18,9 @@ chunkHeaders handle status headers = do
     sendAll handle content
     where
     content = B.concat ["HTTP/1.1 ", statusMsg status, "\r\n\
-        \Server: Ketchup\r\n\
-        \Connection: keep-alive\r\n",heads,"\r\n\
+        \Connection: close\r\n",heads,"\r\n\
         \Transfer-Encoding: chunked\r\n\r\n"]
     heads = B.concat $ map (\x -> B.concat [fst x, ": ", B.concat $ List.intersperse "," $ snd x]) headers
-
 
 chunk :: Socket -> B.ByteString -> IO ()
 chunk handle value =
