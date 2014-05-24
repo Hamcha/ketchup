@@ -14,6 +14,7 @@ Library
   Exposed-Modules:
     Ketchup.Httpd,
     Ketchup.Routing
+    Ketchup.Chunked
 
   Other-Modules:
     Ketchup.Utils
