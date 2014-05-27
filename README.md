@@ -1,17 +1,16 @@
 # Howdy, this is Ketchup!
 
-Ketchup is a very small HTTP server implementation, the HTTPd itself is one file with less than 200 LoC!
+Ketchup is a very small HTTP server implementation, the HTTPd itself is one file with less than 100 LoC!
 
 Ketchup is also made to be as modular and embeddable as possible, if you want a cabal-free Haskell app, just take those two/three files you need and put it in your project!
 
-### Current structure
+Currently Ketchup comes with:
 
-Currently Ketchup is made up of 3 files + 1 example.
+- Basic httpd functionality (IPV4 only for now)
+- Regexp routing with parameters (ie. `/user/:name/(.\*)`)
+- Static file handler (ie. `static "."` as route/handler)
 
-`Ketchup/Httpd.hs` is the Httpd<br/>
-`Ketchup/Routing.hs` is the Router<br/>
-`example.hs` is the Example file running a webserver with a couple routes<br/>
-You don't have to use the router if you don't need it, just `rm` it and use the global handler from Httpd!
+Most of the project is dependency-free and only uses stuff included in Prelude, with the exception of Ketchup.Static who uses the mime-types package from Hackage, which is a single separately downloadable file.
 
 ### A word of warning
 

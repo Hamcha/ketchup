@@ -6,9 +6,11 @@ module Ketchup.Static
 
 import qualified Data.ByteString.Char8 as B
 import qualified Data.Map as M
+import           Data.Text.Encoding
 import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network
+import           Network.Mime
 import           System.Directory (doesFileExist)
 
 -- Static file handler
@@ -21,7 +23,10 @@ static folder hnd req params = do
     doesExist <- doesFileExist strPath
     case and [sane, doesExist] of
         True  -> B.readFile strPath
-                 >>= sendReply hnd 200 []
+                 >>= sendReply hnd 200 [("Content-Type",[mime])]
+                 where
+                 mime = defaultMimeLookup $ decodeUtf8 fname 
+                 fname = last $ B.split '/' path
         False -> sendNotFound hnd
 
 sanecheck :: B.ByteString -> Bool
@@ -29,5 +34,5 @@ sanecheck url =
     and checks
     where
     checks = [parentcheck]
-    parentcheck = length (filter (== "..") pieces) > 0
+    parentcheck = length (filter (== "..") pieces) < 1
     pieces = B.split '/' url
