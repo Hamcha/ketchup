@@ -1,0 +1,33 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+module Ketchup.Static
+( static
+) where
+
+import qualified Data.ByteString.Char8 as B
+import qualified Data.Map as M
+import           Ketchup.Httpd
+import           Ketchup.Utils
+import           Network
+import           System.Directory (doesFileExist)
+
+-- Static file handler
+static :: B.ByteString -> Socket -> HTTPRequest 
+          -> (M.Map B.ByteString B.ByteString) -> IO ()
+static folder hnd req params = do
+    let path = B.concat [folder, uri req]
+    let sane = sanecheck path
+    let strPath = B.unpack path
+    doesExist <- doesFileExist strPath
+    case and [sane, doesExist] of
+        True  -> B.readFile strPath
+                 >>= sendReply hnd 200 []
+        False -> sendNotFound hnd
+
+sanecheck :: B.ByteString -> Bool
+sanecheck url = 
+    and checks
+    where
+    checks = [parentcheck]
+    parentcheck = length (filter (== "..") pieces) > 0
+    pieces = B.split '/' url

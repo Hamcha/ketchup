@@ -6,6 +6,9 @@ import qualified Data.ByteString as B
 import qualified Data.Map as M
 import           Ketchup.Httpd
 import           Ketchup.Routing
+import           Ketchup.Utils
+import           Ketchup.Chunked
+import           Ketchup.Static
 
 handle hnd req params = do
     sendReply hnd 200 [("Content-Type", ["text/html"])] response
@@ -21,6 +24,13 @@ greet hnd req params = do
     getName Nothing  = "Anonymous"
     name = M.lookup "user" params
 
-router = route [("/", handle), ("/greet/:user", greet)]
+chunked hnd req params = do
+    chunkHeaders hnd 200 [("Content-Type",["text/plain"])]
+    chunk hnd "PUTIFERIO"
+    chunk hnd "AAAAAAAAAHHH"
+    endchunk hnd
+
+router = route [("/", handle), ("/greet/:user", greet),
+                ("/chunk", chunked), ("/Ketchup/(.*)", static ".")]
 
 main = do listenHTTP "*" 8080 router

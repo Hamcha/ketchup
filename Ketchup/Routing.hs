@@ -7,14 +7,17 @@ module Ketchup.Routing
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Map as M
 import           Ketchup.Httpd
+import           Ketchup.Utils
 import           Network
 import qualified Text.Regex.Posix as R
 
-route :: [(C.ByteString, (Socket -> HTTPRequest -> (M.Map C.ByteString C.ByteString) -> IO ()))]
+route :: [(C.ByteString, (Socket -> HTTPRequest 
+         -> (M.Map C.ByteString C.ByteString) -> IO ()))]
          -> (Socket -> HTTPRequest -> IO ())
 route []         handle request = sendNotFound handle
 route (r:routes) handle request
-    | match (uri request) (fst r) = (snd r) handle request $ params (uri request) (fst r)
+    | match (uri request) (fst r) = (snd r) handle request $ 
+                                        params (uri request) (fst r)
     | otherwise                   = route routes handle request
 
 match :: C.ByteString -> C.ByteString -> Bool
@@ -32,7 +35,8 @@ match url template =
 
 params :: C.ByteString -> C.ByteString -> M.Map C.ByteString C.ByteString
 params url template =
-    M.fromList $ filter (not . C.null . fst) $ zipWith retrieve urlparts tmpparts
+    M.fromList $ filter (not . C.null . fst) $ 
+        zipWith retrieve urlparts tmpparts
     where
     retrieve x y
         | or [C.null y, C.null x] = ("","")
