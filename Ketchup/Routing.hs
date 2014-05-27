@@ -8,6 +8,7 @@ import qualified Data.ByteString.Char8 as C
 import qualified Data.Map as M
 import           Ketchup.Httpd
 import           Network
+import qualified Text.Regex.Posix as R
 
 route :: [(C.ByteString, (Socket -> HTTPRequest -> (M.Map C.ByteString C.ByteString) -> IO ()))]
          -> (Socket -> HTTPRequest -> IO ())
@@ -24,6 +25,7 @@ match url template =
         | x == y                  = True
         | or [C.null y, C.null x] = False
         | C.head y == ':'         = True
+        | x R.=~ y                = True
         | otherwise               = False
     urlparts = C.split '/' url
     tmpparts = C.split '/' template
