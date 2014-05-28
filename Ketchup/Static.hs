@@ -13,9 +13,10 @@ import           Network
 import           Network.Mime
 import           System.Directory (doesFileExist)
 
--- Static file handler
-static :: B.ByteString -> Socket -> HTTPRequest 
-          -> (M.Map B.ByteString B.ByteString) -> IO ()
+-- |Static file handler
+-- Takes a directory and returns a route
+static :: B.ByteString -- ^ Path to serve static files from
+          -> Socket -> HTTPRequest -> (M.Map B.ByteString B.ByteString) -> IO ()
 static folder hnd req params = do
     let path = B.concat [folder, uri req]
     let sane = sanecheck path
@@ -25,12 +26,12 @@ static folder hnd req params = do
         True  -> B.readFile strPath
                  >>= sendReply hnd 200 [("Content-Type",[mime])]
                  where
-                 mime = defaultMimeLookup $ decodeUtf8 fname 
+                 mime = defaultMimeLookup $ decodeUtf8 fname
                  fname = last $ B.split '/' path
         False -> sendNotFound hnd
 
 sanecheck :: B.ByteString -> Bool
-sanecheck url = 
+sanecheck url =
     and checks
     where
     checks = [parentcheck]

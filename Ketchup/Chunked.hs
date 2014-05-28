@@ -14,7 +14,11 @@ import           Network
 import           Network.Socket.ByteString
 import           Numeric
 
-chunkHeaders :: Socket -> Int -> [(B.ByteString, [B.ByteString])] -> IO ()
+-- |Send HTTP reply headers and begin a Chunked transmission
+chunkHeaders :: Socket                           -- ^ Socket to write to
+             -> Int                              -- ^ Status code
+             -> [(B.ByteString, [B.ByteString])] -- ^ Headers
+             -> IO ()
 chunkHeaders handle status headers = do
     sendAll handle content
     where
@@ -23,12 +27,17 @@ chunkHeaders handle status headers = do
         \Transfer-Encoding: chunked\r\n\r\n"]
     heads = B.concat $ map (\x -> B.concat [fst x, ": ", B.concat $ List.intersperse "," $ snd x]) headers
 
-chunk :: Socket -> B.ByteString -> IO ()
+-- |Sends a chunk
+chunk :: Socket       -- ^ Socket to write to
+      -> B.ByteString -- ^ Content to write
+      -> IO ()
 chunk handle value =
     sendAll handle content
     where
     content = B.concat [B.pack $ showHex (B.length value) "",
                         "\r\n", value, "\r\n"]
 
-endchunk :: Socket -> IO ()
+-- |Send the final/closing chunk
+endchunk :: Socket -- ^ Socket to write to
+         -> IO ()
 endchunk handle = sendAll handle "0\r\n\r\n"

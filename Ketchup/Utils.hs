@@ -15,8 +15,10 @@ import qualified Data.List as List
 import           Network
 import           Network.Socket.ByteString
 
--- Returns status message from status id
-statusMsg :: Int -> B.ByteString
+-- |Status Messages
+-- Returns status message from a given status id
+statusMsg :: Int          -- ^ Status code (ex. 404)
+          -> B.ByteString -- ^ Status message (ex. "404 Not Found")
 statusMsg stat
     -- 200 Success
     | stat == 200 = "200 OK"
@@ -36,16 +38,24 @@ statusMsg stat
     | otherwise   = "500 Internal Server Error"
 
 -- Premade HTTP replies
+
+-- |Send 400 Bad Request error
 sendBadRequest :: Socket -> IO ()
 sendBadRequest client = do
     sendReply client 400 [("Content-Type",["text/plain"])] "400 Bad Request!\n"
 
+-- |Send 404 Not Found error
 sendNotFound :: Socket -> IO ()
 sendNotFound client = do
     sendReply client 404 [("Content-Type",["text/plain"])] "404 Not Found!\n"
 
--- Template for 200 Reply
-sendReply :: Socket -> Int -> [(B.ByteString, [B.ByteString])] -> B.ByteString -> IO ()
+-- |Send a HTTP reply
+-- Sends a reply with the given parameters
+sendReply :: Socket                           -- ^ Socket to write to
+          -> Int                              -- ^ Status Code to send
+          -> [(B.ByteString, [B.ByteString])] -- ^ HTTP headers ("Header",["value1", "value2"])
+          -> B.ByteString                     -- ^ Body
+          -> IO ()
 sendReply client status headers body = do
     sendAll client reply
     where
@@ -56,7 +66,7 @@ sendReply client status headers body = do
     heads = B.concat $ map (\x -> B.concat [fst x, ": ", B.concat $ List.intersperse "," $ snd x, "\r\n"]) headers
 
 
--- Util function for trimming whitespace from headers
+-- |Trim whitespace from headers
 trim :: B.ByteString -> B.ByteString
 trim = f . f
     where f = C.reverse . C.dropWhile isSpace

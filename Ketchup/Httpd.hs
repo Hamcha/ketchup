@@ -16,11 +16,16 @@ import           Network.Socket.ByteString
 import           Ketchup.Utils
 import           System.IO
 
--- HTTP Request type
+-- |HTTP Request type
+-- This holds a complete HTTP request
 data HTTPRequest = HTTPRequest { method  :: B.ByteString
+                                -- ^ Get HTTP Request Method (GET, POST etc.)
                                , uri     :: B.ByteString
+                                -- ^ Get Request URI
                                , httpver :: B.ByteString
+                                -- ^ Get HTTP Version
                                , headers :: Map.Map B.ByteString [B.ByteString]
+                                -- ^ Get HTTP Headers (Header, [value, value])
                                } deriving (Show)
 
 -- Parses header lines
@@ -76,8 +81,11 @@ getHostaddr :: String -> IO NS.HostAddress
 getHostaddr "*"  = return NS.iNADDR_ANY
 getHostaddr host = NS.inet_addr host
 
--- Listens for incoming HTTP request
-listenHTTP :: String -> PortNumber -> (Socket -> HTTPRequest -> IO ()) -> IO ()
+-- |Listens for incoming HTTP request
+listenHTTP :: String                            -- ^ Address to bind (ie. "*")
+           -> PortNumber                        -- ^ Port to listen on
+           -> (Socket -> HTTPRequest -> IO ())  -- ^ Route function to call
+           -> IO ()
 listenHTTP hostname port cback = withSocketsDo $ do
     -- Get hostname
     host <- getHostaddr hostname
