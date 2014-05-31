@@ -9,7 +9,7 @@ import qualified Data.Map as M
 import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network
-import qualified Text.Regex.Posix as R
+import qualified Text.Regex.PCRE as R
 
 -- |Router function
 -- Takes a list of routes and iterates through them for every requeust
