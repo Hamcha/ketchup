@@ -25,7 +25,10 @@ chunkHeaders handle status headers = do
     content = B.concat ["HTTP/1.1 ", statusMsg status, "\r\n\
         \Connection: close\r\n",heads,"\r\n\
         \Transfer-Encoding: chunked\r\n\r\n"]
-    heads = B.concat $ map (\x -> B.concat [fst x, ": ", B.concat $ List.intersperse "," $ snd x]) headers
+    heads = B.concat $ map toHeader headers
+    toHeader x = B.concat [fst x, ": "
+                          ,B.concat $ List.intersperse "," $ snd x
+                          ,"\r\n"]
 
 -- |Sends a chunk
 chunk :: Socket       -- ^ Socket to write to

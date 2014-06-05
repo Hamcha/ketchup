@@ -41,12 +41,12 @@ statusMsg stat
 
 -- |Send 400 Bad Request error
 sendBadRequest :: Socket -> IO ()
-sendBadRequest client = do
+sendBadRequest client =
     sendReply client 400 [("Content-Type",["text/plain"])] "400 Bad Request!\n"
 
 -- |Send 404 Not Found error
 sendNotFound :: Socket -> IO ()
-sendNotFound client = do
+sendNotFound client =
     sendReply client 404 [("Content-Type",["text/plain"])] "404 Not Found!\n"
 
 -- |Send a HTTP reply
@@ -56,15 +56,17 @@ sendReply :: Socket                           -- ^ Socket to write to
           -> [(B.ByteString, [B.ByteString])] -- ^ HTTP headers ("Header",["value1", "value2"])
           -> B.ByteString                     -- ^ Body
           -> IO ()
-sendReply client status headers body = do
+sendReply client status headers body =
     sendAll client reply
     where
     reply = B.concat ["HTTP/1.1 ", statusMsg status,"\r\n\
         \Content-Length: ", C.pack $ show $ C.length body, "\r\n\
         \Connection: close\r\n",heads,"\r\n",body]
     -- Turn ("a", ["b", "c"]) headers into "a: b,c"
-    heads = B.concat $ map (\x -> B.concat [fst x, ": ", B.concat $ List.intersperse "," $ snd x, "\r\n"]) headers
-
+    heads = B.concat $ map toHeader headers
+    toHeader x = B.concat [fst x, ": "
+                          ,B.concat $ List.intersperse "," $ snd x
+                          ,"\r\n"]
 
 -- |Trim whitespace from headers
 trim :: B.ByteString -> B.ByteString
