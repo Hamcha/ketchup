@@ -7,7 +7,6 @@ module Ketchup.Static
 import qualified Data.ByteString.Char8 as B
 import           Data.Text.Encoding
 import           Ketchup.Httpd
-import           Ketchup.Routing
 import           Ketchup.Utils
 import           Network.Mime
 import           System.Directory (doesFileExist)
@@ -15,8 +14,8 @@ import           System.Directory (doesFileExist)
 -- |Static file handler
 -- Takes a directory and returns a route
 static :: B.ByteString -- ^ Path to serve static files from
-          -> Route
-static folder hnd req params = do
+          -> Handler
+static folder hnd req = do
     let path = B.concat [folder, uri req]
     let sane = sanecheck path
     let strPath = B.unpack path

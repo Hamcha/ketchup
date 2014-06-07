@@ -34,11 +34,11 @@ post hnd req params = do
     print $ parseBody $ body req
     sendReply hnd 200 [("Content-Type", ["text/html"])] "OK!"
 
-router = route [ ("/"            , handle     )
-               , ("/greet/:user" , greet      )
-               , ("/chunk"       , chunked    )
-               , ("/Ketchup/(.*)", static "." )
-               , ("/post"        , post       )
+router = route [ ("/"            , handle  )
+               , ("/greet/:user" , greet   )
+               , ("/chunk"       , chunked )
+               , ("/post"        , post    )
+               , ("/Ketchup/(.*)", useHandler $ static "." )
                ]
 
 main = do listenHTTP "*" 8080 router

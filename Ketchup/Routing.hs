@@ -4,6 +4,7 @@ module Ketchup.Routing
 ( Route      (..)
 , Parameters (..)
 , route
+, useHandler
 ) where
 
 import qualified Data.ByteString.Char8 as B
@@ -25,6 +26,11 @@ route (r:routes) handle request
     | match (uri request) (fst r) = (snd r) handle request $
                                         params (uri request) (fst r)
     | otherwise                   = route routes handle request
+
+-- |Wrap a handler in a route
+-- Lets you use a handler (no parameters) as a route
+useHandler :: Handler -> Route
+useHandler handler hnd req params = handler hnd req
 
 match :: B.ByteString -> B.ByteString -> Bool
 match url template =
