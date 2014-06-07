@@ -1,48 +1,52 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Ketchup.Routing
-( route
+( Route      (..)
+, Parameters (..)
+, route
 ) where
 
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Char8 as B
 import qualified Data.Map as M
 import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network
 import qualified Text.Regex.PCRE as R
 
+type Parameters = M.Map B.ByteString B.ByteString
+type Route = Socket -> HTTPRequest -> Parameters -> IO ()
+
 -- |Router function
 -- Takes a list of routes and iterates through them for every requeust
-route :: [(C.ByteString, (Socket -> HTTPRequest
-         -> (M.Map C.ByteString C.ByteString) -> IO ()))] -- ^ Routes
-         -> (Socket -> HTTPRequest -> IO ())
+route :: [(B.ByteString, Route)] -- ^ Routes
+         -> Handler
 route []         handle request = sendNotFound handle
 route (r:routes) handle request
     | match (uri request) (fst r) = (snd r) handle request $
                                         params (uri request) (fst r)
     | otherwise                   = route routes handle request
 
-match :: C.ByteString -> C.ByteString -> Bool
+match :: B.ByteString -> B.ByteString -> Bool
 match url template =
     and $ zipWith compare urlparts tmpparts
     where
     compare x y
         | x == y                  = True
-        | or [C.null y, C.null x] = False
-        | C.head y == ':'         = True
+        | or [B.null y, B.null x] = False
+        | B.head y == ':'         = True
         | x R.=~ y                = True
         | otherwise               = False
-    urlparts = C.split '/' url
-    tmpparts = C.split '/' template
+    urlparts = B.split '/' url
+    tmpparts = B.split '/' template
 
-params :: C.ByteString -> C.ByteString -> M.Map C.ByteString C.ByteString
+params :: B.ByteString -> B.ByteString -> Parameters
 params url template =
-    M.fromList $ filter (not . C.null . fst) $
+    M.fromList $ filter (not . B.null . fst) $
         zipWith retrieve urlparts tmpparts
     where
     retrieve x y
-        | or [C.null y, C.null x] = ("","")
-        | C.head y == ':'         = (C.tail y, x)
+        | or [B.null y, B.null x] = ("","")
+        | B.head y == ':'         = (B.tail y, x)
         | otherwise               = ("","")
-    urlparts = C.split '/' url
-    tmpparts = C.split '/' template
+    urlparts = B.split '/' url
+    tmpparts = B.split '/' template

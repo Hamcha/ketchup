@@ -18,7 +18,9 @@ Description:
     Currently Ketchup comes with:
     .
     * Basic httpd functionality (IPV4 only for now)
+    .
     * Regexp routing with parameters (ie. \`/user/:name/(.\*)\`)
+    .
     * Static file handler (ie. \`static \".\"\` as route/handler)
     .
     Most of the project is dependency-free and only uses stuff included in Prelude, with the exception of Ketchup.Static who uses the mime-types package from Hackage, which is a single separately downloadable file.

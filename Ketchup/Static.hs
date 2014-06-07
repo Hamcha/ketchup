@@ -8,6 +8,7 @@ import qualified Data.ByteString.Char8 as B
 import qualified Data.Map as M
 import           Data.Text.Encoding
 import           Ketchup.Httpd
+import           Ketchup.Routing
 import           Ketchup.Utils
 import           Network
 import           Network.Mime
@@ -16,7 +17,7 @@ import           System.Directory (doesFileExist)
 -- |Static file handler
 -- Takes a directory and returns a route
 static :: B.ByteString -- ^ Path to serve static files from
-          -> Socket -> HTTPRequest -> (M.Map B.ByteString B.ByteString) -> IO ()
+          -> Route
 static folder hnd req params = do
     let path = B.concat [folder, uri req]
     let sane = sanecheck path

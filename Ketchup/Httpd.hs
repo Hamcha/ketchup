@@ -8,8 +8,7 @@ module Ketchup.Httpd
 ) where
 
 import           Control.Concurrent (forkIO)
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Char8 as B
 import qualified Data.Map as Map
 import           Network
 import qualified Network.Socket as NS
@@ -36,8 +35,8 @@ parseRequestLine line =
     (property, values)
     where
     property = head items
-    values   = C.split ',' $ (trim . last) items
-    items    = C.split ':' line
+    values   = B.split ',' $ (trim . last) items
+    items    = B.split ':' line
 
 -- Parses request body
 parseRequestBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
@@ -45,21 +44,21 @@ parseRequestBody body =
     map sep items
     where
     sep   = breakBS "="
-    items = C.split '&' body
+    items = B.split '&' body
 
 -- Gets all request lines
 getRequest :: Socket -> IO ([B.ByteString], B.ByteString)
 getRequest client = do
     content <- recv client 1024
     let (headers, body) = breakBS "\r\n\r\n" content
-    return (C.lines headers, body)
+    return (B.lines headers, body)
 
 -- Parses requests
 parseRequest :: ([B.ByteString], B.ByteString) -> HTTPRequest
 parseRequest reqlines =
     HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads, body=body }
     where
-    [met, ur, ver] = C.words $ head headers -- First line is METHOD URI VERSION
+    [met, ur, ver] = B.words $ head headers -- First line is METHOD URI VERSION
     heads   = Map.fromList $ map parseRequestLine $ tail headers
     body    = snd reqlines
     headers = fst reqlines
