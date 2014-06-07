@@ -1,7 +1,6 @@
 # Howdy, this is Ketchup!
 
-Ketchup is a very small HTTP server implementation, the HTTPd itself is one file with
-around 100 LoC!
+Ketchup is a very small HTTP server implementation, currently [under 300 LoC total](http://ix.io/cQM)!
 
 Ketchup is also made to be as modular and embeddable as possible, if you want a cabal-free Haskell app, just take those two/three files you need and put it in your project!
 
