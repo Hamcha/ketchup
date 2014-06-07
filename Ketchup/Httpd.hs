@@ -1,8 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Ketchup.Httpd
-( HTTPRequest
-, method, uri, httpver, headers
+( HTTPRequest (..)
+, Headers     (..)
+, Handler     (..)
 , listenHTTP
 ) where
 
@@ -16,17 +17,18 @@ import           Network.Socket.ByteString
 import           Ketchup.Utils
 import           System.IO
 
+type Headers  = Map.Map B.ByteString [B.ByteString]
+type Handler  = Socket -> HTTPRequest -> IO ()
+
 -- |HTTP Request type
 -- This holds a complete HTTP request
-data HTTPRequest = HTTPRequest { method  :: B.ByteString
-                                -- ^ Get HTTP Request Method (GET, POST etc.)
-                               , uri     :: B.ByteString
-                                -- ^ Get Request URI
-                               , httpver :: B.ByteString
-                                -- ^ Get HTTP Version
-                               , headers :: Map.Map B.ByteString [B.ByteString]
-                                -- ^ Get HTTP Headers (Header, [value, value])
-                               } deriving (Show)
+data HTTPRequest = HTTPRequest
+    { method  :: B.ByteString -- ^ Get HTTP Request Method (GET, POST etc.)
+    , uri     :: B.ByteString -- ^ Get Request URI
+    , httpver :: B.ByteString -- ^ Get HTTP Version
+    , headers :: Headers      -- ^ Get HTTP Headers (header, [values])
+    , body    :: B.ByteString -- ^ Get HTTP Post body (raw string)
+    } deriving (Show)
 
 -- Parses header lines
 parseRequestLine :: B.ByteString -> (B.ByteString, [B.ByteString])
@@ -34,41 +36,52 @@ parseRequestLine line =
     (property, values)
     where
     property = head items
-    values = C.split ',' $ (trim . last) items
-    items = C.split ':' line
+    values   = C.split ',' $ (trim . last) items
+    items    = C.split ':' line
+
+-- Parses request body
+parseRequestBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
+parseRequestBody body =
+    map sep items
+    where
+    sep   = breakBS "="
+    items = C.split '&' body
 
 -- Gets all request lines
-getRequest :: Socket -> IO [B.ByteString]
+getRequest :: Socket -> IO ([B.ByteString], B.ByteString)
 getRequest client = do
     content <- recv client 1024
-    return $ C.lines content
+    let (headers, body) = breakBS "\r\n\r\n" content
+    return (C.lines headers, body)
 
 -- Parses requests
-parseRequest :: [B.ByteString] -> HTTPRequest
+parseRequest :: ([B.ByteString], B.ByteString) -> HTTPRequest
 parseRequest reqlines =
-    HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads }
+    HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads, body=body }
     where
-    [met, ur, ver] = (C.words . head) reqlines -- First line is METHOD URI VERSION
-    heads = Map.fromList $ map parseRequestLine $ tail reqlines
+    [met, ur, ver] = C.words $ head headers -- First line is METHOD URI VERSION
+    heads   = Map.fromList $ map parseRequestLine $ tail headers
+    body    = snd reqlines
+    headers = fst reqlines
 
 -- Handles each client request
-handleRequest :: Socket -> (Socket -> HTTPRequest -> IO ()) -> IO ()
+handleRequest :: Socket -> Handler -> IO ()
 handleRequest client cback = do
     reqlines <- getRequest client
-    case length reqlines of
+    case length (fst reqlines) of
         0 -> sendBadRequest client
         _ -> cback client $ parseRequest reqlines
     sClose client
 
 -- Acceptor
-acceptAll :: Socket -> (Socket -> HTTPRequest -> IO ()) -> IO ()
+acceptAll :: Socket -> Handler -> IO ()
 acceptAll sock cback = do
     (client, _) <- NS.accept sock
     handleRequest client cback
     acceptAll sock cback
 
 -- Creates Acceptor pools
-createAcceptorPool :: Socket -> Int -> (Socket -> HTTPRequest -> IO ()) -> IO ()
+createAcceptorPool :: Socket -> Int -> Handler -> IO ()
 createAcceptorPool sock max cback =
     case max of
         0 -> acceptAll sock cback
@@ -82,9 +95,9 @@ getHostaddr "*"  = return NS.iNADDR_ANY
 getHostaddr host = NS.inet_addr host
 
 -- |Listens for incoming HTTP request
-listenHTTP :: String                            -- ^ Address to bind (ie. "*")
-           -> PortNumber                        -- ^ Port to listen on
-           -> (Socket -> HTTPRequest -> IO ())  -- ^ Route function to call
+listenHTTP :: String        -- ^ Address to bind (ie. "*")
+           -> PortNumber    -- ^ Port to listen on
+           -> Handler       -- ^ Route function to call
            -> IO ()
 listenHTTP hostname port cback = withSocketsDo $ do
     -- Get hostname

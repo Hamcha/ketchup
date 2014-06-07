@@ -10,13 +10,13 @@ import           Ketchup.Utils
 import           Ketchup.Chunked
 import           Ketchup.Static
 
-handle hnd req params = do
+handle hnd req params =
     sendReply hnd 200 [("Content-Type", ["text/html"])] response
     where
     response = B.concat ["<center>You requested <b>", url, "</b></center>"]
     url = uri req
 
-greet hnd req params = do
+greet hnd req params =
     sendReply hnd 200 [("Content-Type", ["text/html"])] response
     where
     response = B.concat ["<h1>Hi ", getName name, "!</h1>"]
@@ -30,7 +30,15 @@ chunked hnd req params = do
     chunk hnd "AAAAAAAAAHHH"
     endchunk hnd
 
-router = route [("/", handle), ("/greet/:user", greet),
-                ("/chunk", chunked), ("/Ketchup/(.*)", static ".")]
+post hnd req params = do
+    print $ parseBody $ body req
+    sendReply hnd 200 [("Content-Type", ["text/html"])] "OK!"
+
+router = route [ ("/"            , handle     )
+               , ("/greet/:user" , greet      )
+               , ("/chunk"       , chunked    )
+               , ("/Ketchup/(.*)", static "." )
+               , ("/post"        , post       )
+               ]
 
 main = do listenHTTP "*" 8080 router

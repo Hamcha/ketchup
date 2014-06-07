@@ -2,16 +2,18 @@
 
 module Ketchup.Utils
 ( trim
+, breakBS
+, parseBody
 , sendReply
 , sendBadRequest
 , sendNotFound
 , statusMsg
 ) where
 
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Char8 as B
 import           Data.Char (isSpace)
 import qualified Data.List as List
+import qualified Data.Map  as Map
 import           Network
 import           Network.Socket.ByteString
 
@@ -59,9 +61,10 @@ sendReply :: Socket                           -- ^ Socket to write to
 sendReply client status headers body =
     sendAll client reply
     where
-    reply = B.concat ["HTTP/1.1 ", statusMsg status,"\r\n\
-        \Content-Length: ", C.pack $ show $ C.length body, "\r\n\
-        \Connection: close\r\n",heads,"\r\n",body]
+    reply = B.concat
+        [ "HTTP/1.1 ", statusMsg status,"\r\n"
+        , "Content-Length: ", B.pack $ show $ B.length body, "\r\n"
+        , "Connection: close\r\n", heads, "\r\n", body]
     -- Turn ("a", ["b", "c"]) headers into "a: b,c"
     heads = B.concat $ map toHeader headers
     toHeader x = B.concat [fst x, ": "
@@ -71,4 +74,17 @@ sendReply client status headers body =
 -- |Trim whitespace from headers
 trim :: B.ByteString -> B.ByteString
 trim = f . f
-    where f = C.reverse . C.dropWhile isSpace
+    where f = B.reverse . B.dropWhile isSpace
+
+-- |ByteString breakSubstring wrapper that drops delimiters
+breakBS :: B.ByteString -> B.ByteString -> (B.ByteString, B.ByteString)
+breakBS delimiter source =
+    (first, second)
+    where
+    first  = fst broke
+    second = B.drop (B.length delimiter) $ snd broke
+    broke  = B.breakSubstring delimiter source
+
+-- |Parse a URL-encoded Request
+parseBody :: B.ByteString -> Map.Map B.ByteString B.ByteString
+parseBody body = Map.fromList $ map (breakBS "=") $ B.split '&' body
