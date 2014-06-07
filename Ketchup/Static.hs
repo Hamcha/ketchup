@@ -5,12 +5,10 @@ module Ketchup.Static
 ) where
 
 import qualified Data.ByteString.Char8 as B
-import qualified Data.Map as M
 import           Data.Text.Encoding
 import           Ketchup.Httpd
 import           Ketchup.Routing
 import           Ketchup.Utils
-import           Network
 import           Network.Mime
 import           System.Directory (doesFileExist)
 

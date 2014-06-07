@@ -14,7 +14,6 @@ import           Network
 import qualified Network.Socket as NS
 import           Network.Socket.ByteString
 import           Ketchup.Utils
-import           System.IO
 
 type Headers  = Map.Map B.ByteString [B.ByteString]
 type Handler  = Socket -> HTTPRequest -> IO ()
