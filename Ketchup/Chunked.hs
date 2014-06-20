@@ -23,7 +23,7 @@ chunkHeaders handle status headers = do
     sendAll handle content
     where
     content = B.concat ["HTTP/1.1 ", statusMsg status, "\r\n\
-        \Connection: close\r\n",heads,"\r\n\
+        \Connection: close\r\n",heads,"\
         \Transfer-Encoding: chunked\r\n\r\n"]
     heads = B.concat $ map toHeader headers
     toHeader x = B.concat [fst x, ": "
