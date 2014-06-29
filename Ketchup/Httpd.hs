@@ -9,13 +9,12 @@ module Ketchup.Httpd
 
 import           Control.Concurrent (forkIO)
 import qualified Data.ByteString.Char8 as B
-import qualified Data.Map as Map
 import           Network
 import qualified Network.Socket as NS
 import           Network.Socket.ByteString
 import           Ketchup.Utils
 
-type Headers  = Map.Map B.ByteString [B.ByteString]
+type Headers  = [(B.ByteString, [B.ByteString])]
 type Handler  = Socket -> HTTPRequest -> IO ()
 
 -- |HTTP Request type
@@ -58,7 +57,7 @@ parseRequest reqlines =
     HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads, body=body }
     where
     [met, ur, ver] = B.words $ head headers -- First line is METHOD URI VERSION
-    heads   = Map.fromList $ map parseRequestLine $ tail headers
+    heads   = map parseRequestLine $ tail headers
     body    = snd reqlines
     headers = fst reqlines
 

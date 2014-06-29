@@ -2,20 +2,17 @@
 
 module Ketchup.Routing
 ( Route      (..)
-, Parameters (..)
 , route
 , useHandler
 ) where
 
 import qualified Data.ByteString.Char8 as B
-import qualified Data.Map as M
 import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network
 import qualified Text.Regex.PCRE as R
 
-type Parameters = M.Map B.ByteString B.ByteString
-type Route = Socket -> HTTPRequest -> Parameters -> IO ()
+type Route = Socket -> HTTPRequest -> (B.ByteString -> Maybe B.ByteString) -> IO ()
 
 -- |Router function
 -- Takes a list of routes and iterates through them for every requeust
@@ -45,11 +42,12 @@ match url template =
     urlparts = B.split '/' url
     tmpparts = B.split '/' template
 
-params :: B.ByteString -> B.ByteString -> Parameters
-params url template =
-    M.fromList $ filter (not . B.null . fst) $
-        zipWith retrieve urlparts tmpparts
+params :: B.ByteString -> B.ByteString -> B.ByteString -> Maybe B.ByteString
+params url template name =
+    lookup name list
     where
+    list = filter (not . B.null . fst) $
+               zipWith retrieve urlparts tmpparts
     retrieve x y
         | or [B.null y, B.null x] = ("","")
         | B.head y == ':'         = (B.tail y, x)

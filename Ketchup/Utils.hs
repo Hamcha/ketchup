@@ -3,6 +3,7 @@
 module Ketchup.Utils
 ( trim
 , breakBS
+, fallback
 , parseBody
 , sendReply
 , sendBadRequest
@@ -13,7 +14,6 @@ module Ketchup.Utils
 import qualified Data.ByteString.Char8 as B
 import           Data.Char (isSpace)
 import qualified Data.List as List
-import qualified Data.Map  as Map
 import           Network
 import           Network.Socket.ByteString
 
@@ -28,6 +28,8 @@ statusMsg stat
     | stat == 204 = "204 No Content"
     -- 400 Client Errors
     | stat == 400 = "400 Bad Request"
+    | stat == 401 = "401 Unauthorized"
+    | stat == 402 = "402 Payment Required"
     | stat == 403 = "403 Forbidden"
     | stat == 404 = "404 Not Found"
     | stat == 405 = "405 Method Not Allowed"
@@ -86,5 +88,9 @@ breakBS delimiter source =
     broke  = B.breakSubstring delimiter source
 
 -- |Parse a URL-encoded Request
-parseBody :: B.ByteString -> Map.Map B.ByteString B.ByteString
-parseBody body = Map.fromList $ map (breakBS "=") $ B.split '&' body
+parseBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
+parseBody body = map (breakBS "=") $ B.split '&' body
+
+fallback :: Maybe a -> a -> a
+fallback (Just value) fallback = value
+fallback Nothing      fallback = fallback
