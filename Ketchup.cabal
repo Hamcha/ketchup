@@ -1,5 +1,5 @@
 Name:           Ketchup
-Version:        0.2.3
+Version:        0.3
 Cabal-Version:  >= 1.6
 Build-Type:     Simple
 License:        MIT
@@ -10,7 +10,7 @@ Homepage:       https://github.com/Hamcha/Ketchup
 Category:       Web, Ketchup
 Synopsis:       A super small web framework for those who don't like big and fancy codebases
 Description:
-    Ketchup is a very small HTTP server implementation, currently under 300 LoC total!
+    Ketchup is a very small HTTP server implementation, currently under 400 LoC total!
     .
     Ketchup is also made to be as modular and embeddable as possible, if you want a cabal-free Haskell app, just take those two/three files you need and put it in your project!
     .
