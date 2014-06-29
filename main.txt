@@ -61,10 +61,14 @@ type Parameters = Map ByteString ByteString
 --   every requeust
 route :: [(ByteString, Route)] -> Handler
 
+-- | Wrap a handler in a route Lets you use a handler (no parameters) as a
+--   route
+useHandler :: Handler -> Route
+
 module Ketchup.Static
 
 -- | Static file handler Takes a directory and returns a route
-static :: ByteString -> Route
+static :: ByteString -> Handler
 
 module Ketchup.Chunked
 
