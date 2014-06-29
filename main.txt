@@ -10,9 +10,10 @@ trim :: ByteString -> ByteString
 
 -- | ByteString breakSubstring wrapper that drops delimiters
 breakBS :: ByteString -> ByteString -> (ByteString, ByteString)
+fallback :: Maybe a -> a -> a
 
 -- | Parse a URL-encoded Request
-parseBody :: ByteString -> Map ByteString ByteString
+parseBody :: ByteString -> [(ByteString, ByteString)]
 
 -- | Send a HTTP reply Sends a reply with the given parameters
 sendReply :: Socket -> Int -> [(ByteString, [ByteString])] -> ByteString -> IO ()
@@ -46,16 +47,26 @@ headers :: HTTPRequest -> Headers
 
 -- | Get HTTP Post body (raw string)
 body :: HTTPRequest -> ByteString
-type Headers = Map ByteString [ByteString]
+type Headers = [(ByteString, [ByteString])]
 type Handler = Socket -> HTTPRequest -> IO ()
 
 -- | Listens for incoming HTTP request
 listenHTTP :: String -> PortNumber -> Handler -> IO ()
 instance Show HTTPRequest
 
+module Ketchup.Chunked
+
+-- | Send HTTP reply headers and begin a Chunked transmission
+chunkHeaders :: Socket -> Int -> [(ByteString, [ByteString])] -> IO ()
+
+-- | Sends a chunk
+chunk :: Socket -> ByteString -> IO ()
+
+-- | Send the final/closing chunk
+endchunk :: Socket -> IO ()
+
 module Ketchup.Routing
-type Route = Socket -> HTTPRequest -> Parameters -> IO ()
-type Parameters = Map ByteString ByteString
+type Route = Socket -> HTTPRequest -> (ByteString -> Maybe ByteString) -> IO ()
 
 -- | Router function Takes a list of routes and iterates through them for
 --   every requeust
@@ -70,13 +81,7 @@ module Ketchup.Static
 -- | Static file handler Takes a directory and returns a route
 static :: ByteString -> Handler
 
-module Ketchup.Chunked
+module Ketchup.Auth
 
--- | Send HTTP reply headers and begin a Chunked transmission
-chunkHeaders :: Socket -> Int -> [(ByteString, [ByteString])] -> IO ()
-
--- | Sends a chunk
-chunk :: Socket -> ByteString -> IO ()
-
--- | Send the final/closing chunk
-endchunk :: Socket -> IO ()
+-- | Performs HTTP Basic Auth
+basicAuth :: [(ByteString, ByteString)] -> ByteString -> Handler -> Handler
