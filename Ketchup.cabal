@@ -22,7 +22,17 @@ Description:
     .
     * Static file handler (ie. \`static \".\"\` as route/handler)
     .
-    Most of the project is dependency-free and only uses stuff included in Prelude, with the exception of Ketchup.Static who uses the mime-types package from Hackage, which is a single separately downloadable file.
+    Dependencies
+    .
+    The core parts of Ketchup are all depedency free, that includes Ketchup.Httpd and Ketchup.Utils (and to a certain extent, Ketchup.Chunked).
+    The dependencies required are for the following modules:
+    .
+    * Ketchup.Routing (uses regex-pcre-builtin, This can ben modified to use builtin POSIX regexp)
+    .
+    * Ketchup.Static (uses mime-types)
+    .
+    * Ketchup.Auth (uses base64-bytestring)
+    .
 
 Extra-Source-Files:
   example.hs,
@@ -39,6 +49,7 @@ Library
 
   Build-Depends:
     base               ==4.*,
+    base64-bytestring   <1.1.0.0,
     bytestring         >=0.9 && <0.11,
     directory           <1.3,
     mime-types          <0.2,

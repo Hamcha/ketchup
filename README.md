@@ -1,6 +1,6 @@
 # Howdy, this is Ketchup!
 
-Ketchup is a very small HTTP server implementation, currently [under 300 LoC total](http://ix.io/cQM)!
+Ketchup is a very small HTTP server implementation, currently [less than 400 LoC total](http://ix.io/cQM)!
 
 Ketchup is also made to be as modular and embeddable as possible, if you want a cabal-free Haskell app, just take those two/three files you need and put it in your project!
 
@@ -10,7 +10,14 @@ Currently Ketchup comes with:
 - Regexp routing with parameters (ie. `/user/:name/(.\*)`)
 - Static file handler (ie. `static "."` as route/handler)
 
-Most of the project is dependency-free and only uses stuff included in Prelude, with the exception of Ketchup.Static who uses the mime-types package from Hackage, which is a single separately downloadable file.
+### Dependencies
+
+The core parts of Ketchup are all depedency free, that includes Ketchup.Httpd and Ketchup.Utils (and to a certain extent, Ketchup.Chunked).
+The dependencies required are for the following modules:
+
+- Ketchup.Routing (uses **regex-pcre-builtin**, *This can ben modified to use builtin POSIX regexp*)
+- Ketchup.Static (uses **mime-types**)
+- Ketchup.Auth (uses **base64-bytestring**)
 
 ### A word of warning
 
