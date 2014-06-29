@@ -22,6 +22,8 @@ Description:
     .
     * Static file handler (ie. \`static \".\"\` as route/handler)
     .
+    * Basic Auth (please use it over a HTTPS reverse proxy)
+    .
     Dependencies
     .
     The core parts of Ketchup are all depedency free, that includes Ketchup.Httpd and Ketchup.Utils (and to a certain extent, Ketchup.Chunked).

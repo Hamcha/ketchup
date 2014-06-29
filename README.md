@@ -9,6 +9,7 @@ Currently Ketchup comes with:
 - Basic httpd functionality (IPV4 only for now)
 - Regexp routing with parameters (ie. `/user/:name/(.\*)`)
 - Static file handler (ie. `static "."` as route/handler)
+- Basic Auth (please use it over a HTTPS reverse proxy)
 
 ### Dependencies
 
