@@ -1,5 +1,5 @@
 Name:           Ketchup
-Version:        0.3
+Version:        0.3.1
 Cabal-Version:  >= 1.6
 Build-Type:     Simple
 License:        MIT
@@ -43,6 +43,7 @@ Extra-Source-Files:
 
 Library
   Exposed-Modules:
+    Ketchup.Auth
     Ketchup.Chunked
     Ketchup.Httpd
     Ketchup.Routing
