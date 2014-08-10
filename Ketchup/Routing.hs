@@ -56,20 +56,3 @@ prepare url =
     insertBS x a = B.concat [ B.take (fst x) a
                             , "([^/]+)"
                             , B.drop ((fst x) + (snd x)) a]
-{-
-Task:
-prepare must get a url like /:a/:b/ return ("/([^/]+)/([^/]+)/",["a","b"])
-
-Plan of attack:
-- Get all delimiters (match on ":([^/]+)")
-- Put each delimiter on list (out is done!)
-- Replace all delimiter (including :) with "([^/]+)"
-
-Notes:
-- If we use ~= we don't do IO! (ok we do, but we don't mess the whole thing)
-- Do we even have "replace" function for regexps? I don't think so..
-
-Couldn't match expected type `[a0]' with actual type `B.ByteString'
-    In the return type of a call of `B.take'
-
--}
