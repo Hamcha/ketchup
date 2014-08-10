@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Ketchup.Utils
-( trim
-, breakBS
+( breakBS
 , fallback
 , parseBody
-, sendReply
 , sendBadRequest
 , sendNotFound
+, sendReply
 , statusMsg
+, subBS
+, trim
 ) where
 
 import qualified Data.ByteString.Char8 as B
@@ -87,10 +88,15 @@ breakBS delimiter source =
     second = B.drop (B.length delimiter) $ snd broke
     broke  = B.breakSubstring delimiter source
 
+-- |Get a substring of a ByteString
+subBS :: Int -> Int -> B.ByteString -> B.ByteString
+subBS start length = B.take length . B.drop start
+
 -- |Parse a URL-encoded Request
 parseBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
 parseBody body = map (breakBS "=") $ B.split '&' body
 
+-- |Maybe a -> a with fallback (if Nothing)
 fallback :: Maybe a -> a -> a
 fallback (Just value) fallback = value
 fallback Nothing      fallback = fallback
