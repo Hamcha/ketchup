@@ -29,8 +29,6 @@ Description:
     The core parts of Ketchup are all depedency free, that includes Ketchup.Httpd and Ketchup.Utils (and to a certain extent, Ketchup.Chunked).
     The dependencies required are for the following modules:
     .
-    * Ketchup.Routing (uses regex-pcre-builtin)
-    .
     * Ketchup.Static (uses mime-types)
     .
     * Ketchup.Auth (uses base64-bytestring)
@@ -57,7 +55,6 @@ Library
     directory           <1.3,
     mime-types          <0.2,
     network             <2.5,
-    regex-tdfa          <2.0,
     text                <2.0
 
 Source-Repository head

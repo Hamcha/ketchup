@@ -2,31 +2,33 @@
 
 module Ketchup.Routing
 ( Route      (..)
+, match
+, prefix
 , route
 , useHandler
 ) where
 
-import qualified Data.ByteString as B
-import           GHC.Arr
+import qualified Data.ByteString.Char8 as B
 import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network
-import qualified Text.Regex.TDFA as R
 
-type Route = Socket -> HTTPRequest -> (B.ByteString -> Maybe B.ByteString) -> IO ()
-
+type Route   = Socket -> HTTPRequest -> (B.ByteString -> Maybe B.ByteString) -> IO ()
+type Matcher = B.ByteString -> (Bool, Arguments)
+data Arguments = None | Parameters [(B.ByteString, B.ByteString)]
+    deriving Show
 -- |Router function
 -- Takes a list of routes and iterates through them for every requeust
-route :: [(B.ByteString, Route)] -- ^ Routes
+route :: [(Matcher, Route)] -- ^ Routes
          -> Handler
 route []         handle request = sendNotFound handle
 route (r:routes) handle request
-    | isMatch   = (snd r) handle request params
+    | isMatch   = (snd r) handle request (get params)
     | otherwise = route routes handle request
     where
     isMatch = fst matched
     params  = snd matched
-    matched = match (uri request) (fst r)
+    matched = (fst r) (uri request)
 
 
 -- |Wrap a handler in a route
@@ -34,25 +36,32 @@ route (r:routes) handle request
 useHandler :: Handler -> Route
 useHandler handler hnd req params = handler hnd req
 
-match :: B.ByteString -> B.ByteString -> (Bool, B.ByteString -> Maybe B.ByteString)
-match url template =
-    (matched, params)
+match :: B.ByteString -> Matcher
+match template url =
+    (isMatch, Parameters params)
     where
-    matched     = (length paramValues) == (length paramNames)
-    params name = lookup name paramList
-    paramList   = zipWith (\x y -> (x, y)) paramNames paramValues
-    paramValues = map (\x -> subBS (fst x) (snd x) url) $ elems paramRegexp
-    paramRegexp = url R.=~ regex :: R.MatchArray
-    (regex, paramNames) = prepare template
+    isMatch  = fst parsed
+    params   = snd parsed
+    parsed   = parse urlparts temparts []
+    urlparts = B.split '/' url
+    temparts = B.split '/' template
 
-prepare :: B.ByteString -> (B.ByteString, [B.ByteString])
-prepare url =
-    (regex, paramNames)
-    where
-    regex        = B.concat ["^", regexPart, "$"]
-    regexPart    = foldr insertBS url $ elems matches
-    paramNames   = map (\x -> subBS (fst x) (snd x) url) $ elems matches
-    matches      = url R.=~ (":([^/]+)" :: B.ByteString) :: R.MatchArray
-    insertBS x a = B.concat [ B.take (fst x) a
-                            , "([^/]+)"
-                            , B.drop ((fst x) + (snd x)) a]
+parse :: [B.ByteString]
+      -> [B.ByteString]
+      -> [(B.ByteString, B.ByteString)]
+      -> (Bool, [(B.ByteString, B.ByteString)])
+parse []      []       params = (True, params)
+parse (u:url) []       params = (False, [])
+parse []      (t:temp) params = (False, [])
+parse (u:url) (t:temp) params
+    | B.length t < 1  = parse url temp params
+    | B.head t == ':' = parse url temp ((B.tail t, u) : params)
+    | u == t          = parse url temp params
+    | otherwise       = (False, [])
+
+prefix :: B.ByteString -> Matcher
+prefix urlPrefix url = (B.isPrefixOf urlPrefix url, None)
+
+get :: Arguments -> B.ByteString -> Maybe B.ByteString
+get (Parameters params) x = lookup x params
+get None x                = Nothing

@@ -32,12 +32,12 @@ post hnd req = do
     print $ parseBody $ body req
     sendReply hnd 200 [("Content-Type", ["text/html"])] "OK!"
 
-router = route [ ("/greet/:user" , greet                   )
-               , ("/chunk/?"     , useHandler $ chunked    )
-               , ("/post"        , useHandler $ post       )
-               , ("/Ketchup/(.*)", useHandler $ static "." )
-               , ("/auth"        , useHandler $ basicAuth [("a","b")] "test" handle )
-               , ("/"            , useHandler $ handle     )
+router = route [ (match  "/greet/:user" , greet                   )
+               , (prefix "/chunk/"      , useHandler $ chunked    )
+               , (match  "/post"        , useHandler $ post       )
+               , (prefix "/Ketchup/"    , useHandler $ static "." )
+               , (match  "/auth"        , useHandler $ basicAuth [("a","b")] "test" handle )
+               , (match  "/"            , useHandler $ handle     )
                ]
 
 main = do listenHTTP "*" 8080 router
