@@ -7,7 +7,7 @@ Ketchup is also made to be as modular and embeddable as possible, if you want a 
 Currently Ketchup comes with:
 
 - Basic httpd functionality (IPV4 only for now)
-- Regexp routing with parameters (ie. `/user/:name/(.\*)`)
+- URL Routing with parameters (ie. `/user/:name/`)
 - Static file handler (ie. `static "."` as route/handler)
 - Basic Auth (please use it over a HTTPS reverse proxy)
 
@@ -16,7 +16,6 @@ Currently Ketchup comes with:
 The core parts of Ketchup are all depedency free, that includes Ketchup.Httpd and Ketchup.Utils (and to a certain extent, Ketchup.Chunked).
 The dependencies required are for the following modules:
 
-- Ketchup.Routing (uses **regex-pcre-builtin**, *This can ben modified to use builtin POSIX regexp*)
 - Ketchup.Static (uses **mime-types**)
 - Ketchup.Auth (uses **base64-bytestring**)
 

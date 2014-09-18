@@ -18,7 +18,7 @@ Description:
     .
     * Basic httpd functionality (IPV4 only for now)
     .
-    * Regexp routing with parameters (ie. \`/user/:name/?\`)
+    * URL Routing with parameters (ie. \`/user/:name/\`)
     .
     * Static file handler (ie. \`static \".\"\` as route/handler)
     .

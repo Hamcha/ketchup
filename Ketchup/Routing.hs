@@ -17,6 +17,7 @@ type Route   = Socket -> HTTPRequest -> (B.ByteString -> Maybe B.ByteString) -> 
 type Matcher = B.ByteString -> (Bool, Arguments)
 data Arguments = None | Parameters [(B.ByteString, B.ByteString)]
     deriving Show
+
 -- |Router function
 -- Takes a list of routes and iterates through them for every requeust
 route :: [(Matcher, Route)] -- ^ Routes
@@ -30,12 +31,12 @@ route (r:routes) handle request
     params  = snd matched
     matched = (fst r) (uri request)
 
-
 -- |Wrap a handler in a route
 -- Lets you use a handler (no parameters) as a route
 useHandler :: Handler -> Route
 useHandler handler hnd req params = handler hnd req
 
+-- |Create a matchable template with parameters (:param)
 match :: B.ByteString -> Matcher
 match template url =
     (isMatch, Parameters params)
@@ -59,6 +60,7 @@ parse (u:url) (t:temp) params
     | u == t          = parse url temp params
     | otherwise       = (False, [])
 
+-- |Create a prefix matcher
 prefix :: B.ByteString -> Matcher
 prefix urlPrefix url = (B.isPrefixOf urlPrefix url, None)
 
