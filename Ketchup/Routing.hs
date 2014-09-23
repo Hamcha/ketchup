@@ -52,10 +52,12 @@ parse :: [B.ByteString]
       -> [(B.ByteString, B.ByteString)]
       -> (Bool, [(B.ByteString, B.ByteString)])
 parse []      []       params = (True, params)
+parse [""]    []       params = (True, params)
 parse (u:url) []       params = (False, [])
 parse []      (t:temp) params = (False, [])
 parse (u:url) (t:temp) params
     | B.length t < 1  = parse url temp params
+    | B.length u < 1  = parse url (t:temp) params
     | B.head t == ':' = parse url temp ((B.tail t, u) : params)
     | u == t          = parse url temp params
     | otherwise       = (False, [])
