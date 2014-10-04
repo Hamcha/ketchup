@@ -36,14 +36,6 @@ parseRequestLine line =
     values   = B.split ',' $ (trim . last) items
     items    = B.split ':' line
 
--- Parses request body
-parseRequestBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
-parseRequestBody body =
-    map sep items
-    where
-    sep   = breakBS "="
-    items = B.split '&' body
-
 -- Gets all request lines
 getRequest :: Socket -> IO ([B.ByteString], B.ByteString)
 getRequest client = do
