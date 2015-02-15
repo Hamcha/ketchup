@@ -22,27 +22,24 @@ import           Network.Socket.ByteString
 -- Returns status message from a given status id
 statusMsg :: Int          -- ^ Status code (ex. 404)
           -> B.ByteString -- ^ Status message (ex. "404 Not Found")
-statusMsg stat
-    -- 200 Success
-    | stat == 200 = "200 OK"
-    | stat == 201 = "201 Created"
-    | stat == 204 = "204 No Content"
-    -- 400 Client Errors
-    | stat == 400 = "400 Bad Request"
-    | stat == 401 = "401 Unauthorized"
-    | stat == 402 = "402 Payment Required"
-    | stat == 403 = "403 Forbidden"
-    | stat == 404 = "404 Not Found"
-    | stat == 405 = "405 Method Not Allowed"
-    | stat == 410 = "410 Gone"
-    -- 500 Server Errors
-    | stat == 500 = "500 Internal Server Error"
-    | stat == 501 = "501 Not Implemented"
-    | stat == 502 = "502 Bad Gateway"
-    | stat == 503 = "503 Service Unavailable"
-    | otherwise   = "500 Internal Server Error"
-
--- Premade HTTP replies
+-- 200 Success
+statusMsg 200 = "200 OK"
+statusMsg 201 = "201 Created"
+statusMsg 204 = "204 No Content"
+-- 400 Client Errors
+statusMsg 400 = "400 Bad Request"
+statusMsg 401 = "401 Unauthorized"
+statusMsg 402 = "402 Payment Required"
+statusMsg 403 = "403 Forbidden"
+statusMsg 404 = "404 Not Found"
+statusMsg 405 = "405 Method Not Allowed"
+statusMsg 410 = "410 Gone"
+-- 500 Server Errors
+statusMsg 500 = "500 Internal Server Error"
+statusMsg 501 = "501 Not Implemented"
+statusMsg 502 = "502 Bad Gateway"
+statusMsg 503 = "503 Service Unavailable"
+statusMsg x   = "500 Internal Server Error"
 
 -- |Send 400 Bad Request error
 sendBadRequest :: Socket -> IO ()

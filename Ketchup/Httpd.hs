@@ -71,12 +71,10 @@ acceptAll sock cback = do
 
 -- Creates Acceptor pools
 createAcceptorPool :: Socket -> Int -> Handler -> IO ()
-createAcceptorPool sock max cback =
-    case max of
-        0 -> acceptAll sock cback
-        x -> do
-            forkIO $ acceptAll sock cback
-            createAcceptorPool sock (x-1) cback
+createAcceptorPool sock 0   cback = acceptAll sock cback
+createAcceptorPool sock max cback = do
+    forkIO (acceptAll sock cback)
+    createAcceptorPool sock (max-1) cback
 
 -- Gets host from hostname string
 getHostaddr :: String -> IO NS.HostAddress
