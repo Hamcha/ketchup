@@ -27,9 +27,7 @@ route (r:routes) handle request
     | isMatch   = (snd r) handle request (get params)
     | otherwise = route routes handle request
     where
-    isMatch = fst matched
-    params  = snd matched
-    matched = (fst r) (uri request)
+    (isMatch, params) = (fst r) (uri request)
 
 -- |Wrap a handler in a route
 -- Lets you use a handler (no parameters) as a route
@@ -41,9 +39,7 @@ match :: B.ByteString -> Matcher
 match template url =
     (isMatch, Parameters params)
     where
-    isMatch  = fst parsed
-    params   = snd parsed
-    parsed   = parse urlparts temparts []
+    (isMatch, params) = parse urlparts temparts []
     urlparts = B.split '/' url
     temparts = B.split '/' template
 

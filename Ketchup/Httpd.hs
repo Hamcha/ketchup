@@ -50,8 +50,7 @@ parseRequest reqlines =
     where
     [met, ur, ver] = B.words $ head headers -- First line is METHOD URI VERSION
     heads   = map parseRequestLine $ tail headers
-    body    = snd reqlines
-    headers = fst reqlines
+    (body, headers) = reqlines
 
 -- Handles each client request
 handleRequest :: Socket -> Handler -> IO ()
