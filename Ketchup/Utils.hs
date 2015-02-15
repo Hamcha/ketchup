@@ -61,20 +61,18 @@ sendReply :: Socket                           -- ^ Socket to write to
 sendReply client status headers body =
     sendAll client reply
     where
-    reply = B.concat
-        [ "HTTP/1.1 ", statusMsg status,"\r\n"
-        , "Content-Length: ", B.pack $ show $ B.length body, "\r\n"
-        , "Connection: close\r\n", heads, "\r\n", body]
+    reply = B.concat [ "HTTP/1.1 ", statusMsg status,"\r\n"
+                     , "Content-Length: ", B.pack $ show $ B.length body, "\r\n"
+                     , "Connection: close\r\n", heads, "\r\n", body]
     -- Turn ("a", ["b", "c"]) headers into "a: b,c"
-    heads = B.concat $ map toHeader headers
-    toHeader x = B.concat [fst x, ": "
-                          ,B.concat $ List.intersperse "," $ snd x
-                          ,"\r\n"]
+    heads      = B.concat $ map toHeader headers
+    toHeader x = B.concat [ fst x, ": "
+                          , B.concat $ List.intersperse "," $ snd x
+                          , "\r\n"]
 
 -- |Trim whitespace from headers
 trim :: B.ByteString -> B.ByteString
-trim = f . f
-    where f = B.reverse . B.dropWhile isSpace
+trim = f . f where f = B.reverse . B.dropWhile isSpace
 
 -- |ByteString breakSubstring wrapper that drops delimiters
 breakBS :: B.ByteString -> B.ByteString -> (B.ByteString, B.ByteString)
@@ -95,5 +93,5 @@ parseBody body = map (breakBS "=") $ B.split '&' body
 
 -- |Maybe a -> a with fallback (if Nothing)
 fallback :: Maybe a -> a -> a
-fallback (Just value) fallback = value
-fallback Nothing      fallback = fallback
+fallback (Just x) fallback = x
+fallback Nothing  fallback = fallback
