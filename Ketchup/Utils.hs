@@ -44,12 +44,12 @@ statusMsg x   = "500 Internal Server Error"
 -- |Send 400 Bad Request error
 sendBadRequest :: Socket -> IO ()
 sendBadRequest client =
-    sendReply client 400 [("Content-Type",["text/plain"])] "400 Bad Request!\n"
+    sendReply client 400 [("Content-Type",["text/plain"])] "400 Bad Request\n"
 
 -- |Send 404 Not Found error
 sendNotFound :: Socket -> IO ()
 sendNotFound client =
-    sendReply client 404 [("Content-Type",["text/plain"])] "404 Not Found!\n"
+    sendReply client 404 [("Content-Type",["text/plain"])] "404 Not Found\n"
 
 -- |Send a HTTP reply
 -- Sends a reply with the given parameters
