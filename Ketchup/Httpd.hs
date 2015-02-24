@@ -2,8 +2,8 @@
 
 module Ketchup.Httpd
 ( HTTPRequest (..)
-, Headers     (..)
-, Handler     (..)
+, Headers
+, Handler
 , listenHTTP
 ) where
 
@@ -40,17 +40,17 @@ parseRequestLine line =
 getRequest :: Socket -> IO ([B.ByteString], B.ByteString)
 getRequest client = do
     content <- recv client 1024
-    let (headers, body) = breakBS "\r\n\r\n" content
-    return (B.lines headers, body)
+    let (reqheaders, reqbody) = breakBS "\r\n\r\n" content
+    return (B.lines reqheaders, reqbody)
 
 -- Parses requests
 parseRequest :: ([B.ByteString], B.ByteString) -> HTTPRequest
 parseRequest reqlines =
-    HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads, body=body }
+    HTTPRequest { method=met, uri=ur, httpver=ver, headers=heads, body=reqbody }
     where
-    [met, ur, ver] = B.words $ head headers -- First line is METHOD URI VERSION
-    heads   = map parseRequestLine $ tail headers
-    (body, headers) = reqlines
+    [met, ur, ver] = B.words $ head reqheaders -- First line is METHOD URI VERSION
+    heads   = map parseRequestLine $ tail reqheaders
+    (reqheaders, reqbody) = reqlines
 
 -- Handles each client request
 handleRequest :: Socket -> Handler -> IO ()
@@ -71,9 +71,9 @@ acceptAll sock cback = do
 -- Creates Acceptor pools
 createAcceptorPool :: Socket -> Int -> Handler -> IO ()
 createAcceptorPool sock 0   cback = acceptAll sock cback
-createAcceptorPool sock max cback = do
+createAcceptorPool sock cur cback = do
     forkIO (acceptAll sock cback)
-    createAcceptorPool sock (max-1) cback
+    createAcceptorPool sock (cur-1) cback
 
 -- Gets host from hostname string
 getHostaddr :: String -> IO NS.HostAddress

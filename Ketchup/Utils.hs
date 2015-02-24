@@ -39,7 +39,7 @@ statusMsg 500 = "500 Internal Server Error"
 statusMsg 501 = "501 Not Implemented"
 statusMsg 502 = "502 Bad Gateway"
 statusMsg 503 = "503 Service Unavailable"
-statusMsg x   = "500 Internal Server Error"
+statusMsg _   = "500 Internal Server Error"
 
 -- |Send 400 Bad Request error
 sendBadRequest :: Socket -> IO ()
@@ -85,7 +85,7 @@ breakBS delimiter source =
 
 -- |Get a substring of a ByteString
 subBS :: Int -> Int -> B.ByteString -> B.ByteString
-subBS start length = B.take length . B.drop start
+subBS start len = B.take len . B.drop start
 
 -- |Parse a URL-encoded Request
 parseBody :: B.ByteString -> [(B.ByteString, B.ByteString)]
@@ -93,5 +93,5 @@ parseBody body = map (breakBS "=") $ B.split '&' body
 
 -- |Maybe a -> a with fallback (if Nothing)
 fallback :: Maybe a -> a -> a
-fallback (Just x) fallback = x
-fallback Nothing  fallback = fallback
+fallback (Just x) _   = x
+fallback Nothing  def = def

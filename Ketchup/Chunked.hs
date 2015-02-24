@@ -8,7 +8,7 @@ module Ketchup.Chunked
 
 import qualified Data.ByteString.Char8 as B
 import qualified Data.List as List
-import           Ketchup.Httpd
+import           Ketchup.Httpd()
 import           Ketchup.Utils
 import           Network
 import           Network.Socket.ByteString

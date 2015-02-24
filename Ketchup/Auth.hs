@@ -16,18 +16,18 @@ basicAuth :: [(B.ByteString, B.ByteString)] -- ^ List of (Username, Password)
           -> Handler
 basicAuth couples realm success hnd req =
     case authHead of
-        Nothing -> fail
+        Nothing -> send401
         Just x  -> case authData `elem` couples of
-                       False -> fail
+                       False -> send401
                        True  -> success hnd req
                    where
                    authData = parseAuth $ x !! 0
     where
     authHead = lookup "Authorization" $ headers req
     authField = B.concat ["Basic realm=\"",realm,"\""]
-    fail = sendReply hnd 401 [("WWW-Authenticate", [authField])
-                             ,("Content-Type", ["text/html"])]
-                             "<h1>401 Unauthorized</h1>"
+    send401 = sendReply hnd 401 [("WWW-Authenticate", [authField])
+                                ,("Content-Type", ["text/html"])]
+                                "<h1>401 Unauthorized</h1>"
 
 parseAuth :: B.ByteString -> (B.ByteString, B.ByteString)
 parseAuth authStr =
