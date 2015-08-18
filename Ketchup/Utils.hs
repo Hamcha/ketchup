@@ -7,6 +7,7 @@ module Ketchup.Utils
 , sendBadRequest
 , sendNotFound
 , sendReply
+, sendWithMime
 , statusMsg
 , subBS
 , trim
@@ -95,3 +96,7 @@ parseBody body = map (breakBS "=") $ B.split '&' body
 fallback :: Maybe a -> a -> a
 fallback (Just x) _   = x
 fallback Nothing  def = def
+
+-- |Send an OK reply with given mime and content
+sendWithMime :: Socket -> B.ByteString -> B.ByteString -> IO ()
+sendWithMime hnd mime = sendReply hnd 200 [("Content-Type", [mime])]

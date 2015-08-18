@@ -47,6 +47,7 @@ Library
     Ketchup.Routing
     Ketchup.Static
     Ketchup.Utils
+    Ketchup.Templates
 
   Build-Depends:
     base               ==4.*,

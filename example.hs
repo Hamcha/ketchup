@@ -9,15 +9,16 @@ import           Ketchup.Routing
 import           Ketchup.Utils
 import           Ketchup.Chunked
 import           Ketchup.Static
+import           Ketchup.Templates
 
 handle hnd req =
-    sendReply hnd 200 [("Content-Type", ["text/html"])] response
+    sendWithMime hnd "text/html" response
     where
     response = B.concat ["<center>You requested <b>", url, "</b></center>"]
     url = uri req
 
-greet hnd req params =
-    sendReply hnd 200 [("Content-Type", ["text/html"])] response
+greet hnd _ params =
+    sendWithMime hnd "text/html" response
     where
     response = B.concat ["<h1>Hi ", name, "!</h1>"]
     name = fallback (params "user") "Anonymous"
@@ -30,14 +31,20 @@ chunked hnd req = do
 
 post hnd req = do
     print $ parseBody $ body req
-    sendReply hnd 200 [("Content-Type", ["text/html"])] "OK!"
+    sendWithMime hnd "text/html" "OK!"
 
-router = route [ (match  "/greet/:user" , greet                   )
-               , (prefix "/chunk/"      , useHandler $ chunked    )
-               , (match  "/post"        , useHandler $ post       )
-               , (prefix "/Ketchup/"    , useHandler $ static "." )
-               , (match  "/auth"        , useHandler $ basicAuth [("a","b")] "test" handle )
-               , (match  "/"            , useHandler $ handle     )
+router = route [ (match  "/greet/:user"            , greet                   )
+               , (match  "/temp/poem/:author/:item", sendTemplate "./greet.html")
+               , (prefix "/chunk/"                 , useHandler $ chunked    )
+               , (match  "/post"                   , useHandler $ post       )
+               , (prefix "/Ketchup/"               , useHandler $ static "." )
+               , (match  "/auth"                   , useHandler $ basicAuth [("a","b")] "test" handle )
+               , (match  "/"                       , useHandler $ handle     )
                ]
 
-main = do listenHTTP "*" 8080 router
+host = "*"
+port = 8080
+
+main = do putStrLn $ "Listening on " ++ host ++ ":" ++ (show port)
+          listenHTTP host port router
+

@@ -19,7 +19,7 @@ data Arguments = None | Parameters [(B.ByteString, B.ByteString)]
     deriving Show
 
 -- |Router function
--- Takes a list of routes and iterates through them for every requeust
+-- Takes a list of routes and iterates through them for every request
 route :: [(Matcher, Route)] -- ^ Routes
          -> Handler
 route []         handle _       = sendNotFound handle
@@ -43,9 +43,10 @@ match template url =
     urlparts = B.split '/' url
     temparts = B.split '/' template
 
-parse :: [B.ByteString]
-      -> [B.ByteString]
-      -> [(B.ByteString, B.ByteString)]
+-- |Tries to match an URL against a template and returns any found parameters
+parse :: [B.ByteString]                         -- ^ The parts of the splitted URL
+      -> [B.ByteString]                         -- ^ The parts of the template to match the URL against
+      -> [(B.ByteString, B.ByteString)]         -- ^ The parameters accumulator
       -> (Bool, [(B.ByteString, B.ByteString)])
 parse []      []       params = (True, params)
 parse [""]    []       params = (True, params)

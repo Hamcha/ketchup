@@ -4,7 +4,7 @@ base:
 	cabal configure
 	cabal build
 
-example:
+example: example.hs
 	ghc example.hs
 
 install:
