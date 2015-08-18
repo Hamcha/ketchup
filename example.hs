@@ -34,7 +34,7 @@ post hnd req = do
     sendWithMime hnd "text/html" "OK!"
 
 router = route [ (match  "/greet/:user"            , greet                   )
-               , (match  "/temp/poem/:author/:item", sendTemplate "./greet.html")
+               , (match  "/temp/poem/:author/:item", sendTemplate "templates/greet.html")
                , (prefix "/chunk/"                 , useHandler $ chunked    )
                , (match  "/post"                   , useHandler $ post       )
                , (prefix "/Ketchup/"               , useHandler $ static "." )

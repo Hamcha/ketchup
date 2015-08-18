@@ -11,7 +11,6 @@ import           Ketchup.Httpd
 import           Ketchup.Utils
 import           Network.Mime
 import           System.Directory (doesFileExist)
-import Debug.Trace
 
 -- |Static file handler
 -- Takes a directory and returns a route
@@ -28,7 +27,7 @@ static folder hnd req =
 
 readFileToString :: B.ByteString -> IO (Maybe (B.ByteString, MimeType))
 readFileToString path =
-    trace ("file: " ++ (show strPath)) doesFileExist strPath
+    doesFileExist strPath
     >>= \exists ->
         case and [sanecheck path, exists] of
             False -> return Nothing
